@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-mkdir -p "${CODEX_HOME}" "${MISE_DATA_DIR}" "${MISE_CACHE_DIR}" "${REPO_DIR}" /var/lib/docker
+mkdir -p "${CODEX_HOME}" "${REPO_DIR}" /var/lib/docker
 
 # If you ever drop into an interactive shell inside krunvm, these help avoid
 # CR/LF weirdness on some console stacks.

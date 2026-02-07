@@ -4,13 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Standard paths you want
 ENV CODEX_HOME=/codex
-ENV MISE_DATA_DIR=/codex/mise
-ENV MISE_CACHE_DIR=/codex/mise-cache
-ENV MISE_TMP_DIR=/tmp/mise
 ENV REPO_DIR=/repo
-
-# Put mise shims early; put Codex bin on PATH
-ENV PATH="/opt/codex/bin:${MISE_DATA_DIR}/shims:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # Base tooling + build deps for Python builds + general native deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -44,20 +38,19 @@ RUN set -eux; \
 # Install mise (single binary)
 # Ref: https://mise.run install method  [oai_citation:5‡Mise en Place](https://mise.jdx.dev/installing-mise.html?utm_source=chatgpt.com)
 RUN set -eux; \
-    curl -fsSL https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise sh; \
-    mkdir -p "${MISE_DATA_DIR}" "${MISE_CACHE_DIR}" "${MISE_TMP_DIR}"
+    curl -fsSL https://mise.run | sh
+
+ENV PATH="/root/.local/bin:${PATH}"
 
 # Install a Node just to install Codex, then install Codex into /opt/codex
 # Codex install method: npm i -g @openai/codex  [oai_citation:6‡OpenAI Developers](https://developers.openai.com/codex/cli?utm_source=chatgpt.com)
 RUN set -eux; \
     mise --version; \
     mise use -g node@lts; \
-    node --version; \
-    npm --version; \
-    mkdir -p /opt/codex; \
-    npm config set prefix /opt/codex; \
-    npm i -g @openai/codex; \
-    codex --version || true
+    mise exec -- node --version; \
+    mise exec -- npm --version; \
+    mise use -g npm:@openai/codex \
+    mise exec -- codex --version || true
 
 # Minimal sshd setup (keys generated at runtime in entrypoint)
 RUN mkdir -p /var/run/sshd
@@ -69,4 +62,4 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 WORKDIR /repo
 VOLUME ["/codex", "/repo", "/var/lib/docker"]
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-CMD ["codex"]
+CMD ["/bin/bash"]

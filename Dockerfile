@@ -49,7 +49,7 @@ RUN set -eux; \
     mise use -g node@lts; \
     mise exec -- node --version; \
     mise exec -- npm --version; \
-    mise use -g npm:@openai/codex \
+    mise use -g npm:@openai/codex; \
     mise exec -- codex --version || true
 
 # Minimal sshd setup (keys generated at runtime in entrypoint)
